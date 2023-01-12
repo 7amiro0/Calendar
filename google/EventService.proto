@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package storage;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "/storage";
+
+service Storage {
+  rpc Add(Event) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      get: "/add/{user.name}/{title}/{description}/{notify}/{start}/{end}"
+    };
+  };
+
+  rpc Delete(Event) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      get: "/delete/{id}"
+    };
+  };
+
+  rpc Update(Event) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      get: "/update/{id}/{title}/{description}/{notify}/{start}/{end}"
+    };
+  };
+
+  rpc List(Event) returns (Events) {
+    option (google.api.http) = {
+      get: "/list/{user.name}"
+    };
+  };
+
+  rpc ListUpcoming(Until) returns (Events) {
+    option (google.api.http) = {
+      get: "/listUpcoming/{event.user.name}/{until}"
+    };
+  };
+}
+
+message Events {
+  repeated Event events = 1;
+}
+
+message Until {
+  enum Per {
+    day = 0;
+    week = 1;
+    month = 2;
+  }
+  Per until = 1;
+  Event event = 2;
+}
+
+message User {
+  string name = 1;
+  int64 id = 2;
+}
+
+message Event {
+  int64 id = 1;
+  string title = 2;
+  User user = 3;
+  string description = 4;
+  int32 notify = 5;
+  google.protobuf.Timestamp start = 6;
+  google.protobuf.Timestamp end = 7;
+}
